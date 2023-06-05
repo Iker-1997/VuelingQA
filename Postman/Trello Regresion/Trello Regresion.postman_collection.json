@@ -1,0 +1,1583 @@
+{
+	"info": {
+		"_postman_id": "55d34460-cced-40f1-97cb-46a884c6ac76",
+		"name": "Trello Regresion",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "27582877"
+	},
+	"item": [
+		{
+			"name": "TC1 - Create and upadte a board",
+			"item": [
+				{
+					"name": "1.1 Create a board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"getBoardId(pm);\r",
+									"\r",
+									"pm.test(\"Test to check if board is created\", function(){\r",
+									"    let response = pm.response.json();\r",
+									"    pm.expect(response).to.not.empty;\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to check if board is not closed\", function(){\r",
+									"    pm.expect(checkBoardClosed(pm.response)).to.be.equal(false);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"getBoardId = function(pm){\r",
+									"    let response = pm.response.json();\r",
+									"    pm.environment.set(\"idBoard\", response.id);\r",
+									"}\r",
+									"\r",
+									"checkBoardClosed = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.closed;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/boards/?name=Postman regresion board&prefs_background=purple&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								""
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Postman regresion board"
+								},
+								{
+									"key": "prefs_background",
+									"value": "purple"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.2 Update a board to public",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));\r",
+									"\r",
+									"pm.test(\"Find out if permission level is changed to public\", function(){\r",
+									"    pm.expect(getPermissionLevel(pm.response)).to.be.equal(\"public\");\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"getPermissionLevel = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    let prefs = jsonData.prefs;\r",
+									"    return prefs.permissionLevel;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/boards/{{idBoard}}?prefs/permissionLevel=public&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								"{{idBoard}}"
+							],
+							"query": [
+								{
+									"key": "prefs/permissionLevel",
+									"value": "public"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TC2 - Get info of the board",
+			"item": [
+				{
+					"name": "2.1 Get info of the board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));\r",
+									"\r",
+									"pm.test(\"Test to check if id variable in environment is correct\", function(){\r",
+									"    pm.expect(checkId(pm.response)).to.be.equal(pm.environment.get(\"idBoard\"))\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"checkId = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.id;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/boards/:id?key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								":id"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{idBoard}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.2 Consult board lists",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"getDoneListId = function(pm) {\r",
+									"    let response = pm.response;\r",
+									"    let responseJson = response.json();\r",
+									"    console.log(responseJson);\r",
+									"    for (let i = 0; i < responseJson.length; i++) {\r",
+									"        console.log(responseJson[i].name);\r",
+									"        if (responseJson[i].name == \"Hecho\"){\r",
+									"            pm.environment.set(\"doneList\", responseJson[i].id);\r",
+									"        }\r",
+									"    }\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"getDoneListId(pm);\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/boards/:id/lists?fields=all&filter=all&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								":id",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "all"
+								},
+								{
+									"key": "filter",
+									"value": "all"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{idBoard}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2.3 Consult board opened cards",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"openedCardNumber = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.count();\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to check there are no opened card yet in the new board\", function(){\r",
+									"    pm.expect(openedCardNumber(pm.response)).to.be.equal(0);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/boards/:id/cards?key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								":id",
+								"cards"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{idBoard}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TC3 - CRUD of lists",
+			"item": [
+				{
+					"name": "3.1 Create new list",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"getListId = function(pm){\r",
+									"    let response = pm.response.json();\r",
+									"    pm.environment.set(\"newListId\", response.id);\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"getListId(pm);\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/boards/:id/lists?name=QA&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								":id",
+								"lists"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "QA"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{idBoard}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.2 Get info of the list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to check if the list id is correct\", function(){\r",
+									"    pm.expect(checkListId(pm.response)).to.be.equal(pm.environment.get(\"newListId\"));\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"checkListId = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.id;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lists/:listId?key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lists",
+								":listId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "listId",
+									"value": "{{newListId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.3 Update a list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to check if name of the list is changed\", function(){\r",
+									"    pm.expect(checkListName(pm.response)).to.be.equal(\"Testing\");\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"checkListName = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.name;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lists/:listId?name=Testing&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lists",
+								":listId"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Testing"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "listId",
+									"value": "{{newListId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.4 Archive list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to check if list is archived\", function(){\r",
+									"    pm.expect(isListClosed(pm.response)).to.be.equal(true);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"isListClosed = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.closed;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lists/:listId/closed?value=true&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lists",
+								":listId",
+								"closed"
+							],
+							"query": [
+								{
+									"key": "value",
+									"value": "true"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "listId",
+									"value": "{{newListId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.5 Unarchive list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to check if list is archived\", function(){\r",
+									"    pm.expect(isListClosed(pm.response)).to.be.equal(false);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"isListClosed = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.closed;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/lists/:listId/closed?value=false&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"lists",
+								":listId",
+								"closed"
+							],
+							"query": [
+								{
+									"key": "value",
+									"value": "false"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "listId",
+									"value": "{{newListId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TC4 - CRUD of cards",
+			"item": [
+				{
+					"name": "4.1 Create card of our list",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"getCardId = function(pm){\r",
+									"    let response = pm.response.json();\r",
+									"    pm.environment.set(\"newCardId\", response.id);\r",
+									"}\r",
+									"\r",
+									"checkCardId = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.id;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"getCardId(pm);\r",
+									"\r",
+									"pm.test(\"Test to check if the id collected of the new card is correct\", function(){\r",
+									"    pm.expect(checkCardId(pm.response)).to.be.equal(pm.environment.get(\"newCardId\"));\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cards?idList={{newListId}}&name=TestCard&desc=Test description&pos=top&start=null&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards"
+							],
+							"query": [
+								{
+									"key": "idList",
+									"value": "{{newListId}}"
+								},
+								{
+									"key": "name",
+									"value": "TestCard"
+								},
+								{
+									"key": "desc",
+									"value": "Test description"
+								},
+								{
+									"key": "pos",
+									"value": "top"
+								},
+								{
+									"key": "start",
+									"value": "null"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.2 Update card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to check if name and description are updated\", function(){\r",
+									"    pm.expect(getCardName(pm.response)).to.be.equal(\"Postman regresion task\");\r",
+									"    pm.expect(getCardDescription(pm.response)).to.be.equal(\"The description has changed\");\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"getCardName = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.name;\r",
+									"}\r",
+									"\r",
+									"getCardDescription = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.desc;\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cover\": {\r\n        \"color\": \"sky\"\r\n    }\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/cards/:cardId?name=Postman regresion task&desc=The description has changed&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards",
+								":cardId"
+							],
+							"query": [
+								{
+									"key": "name",
+									"value": "Postman regresion task"
+								},
+								{
+									"key": "desc",
+									"value": "The description has changed"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cardId",
+									"value": "{{newCardId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.3 Get selected info of the card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cards/:cardId?fields=name,desc,dateLastActivity,shortUrl,closed&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards",
+								":cardId"
+							],
+							"query": [
+								{
+									"key": "fields",
+									"value": "name,desc,dateLastActivity,shortUrl,closed"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cardId",
+									"value": "{{newCardId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.4 Archive card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to check if card is archived\",  function(){\r",
+									"    pm.expect(cardArchived(pm.response)).to.be.equal(true);\r",
+									"})\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cards/:cardId?closed=true&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards",
+								":cardId"
+							],
+							"query": [
+								{
+									"key": "closed",
+									"value": "true"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cardId",
+									"value": "{{newCardId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.5 Unarchive card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to check if card is archived\",  function(){\r",
+									"    pm.expect(cardArchived(pm.response)).to.be.equal(false);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cards/:cardId?closed=false&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards",
+								":cardId"
+							],
+							"query": [
+								{
+									"key": "closed",
+									"value": "false"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cardId",
+									"value": "{{newCardId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.6 Change card to Done list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to check if list is changed\", function(){\r",
+									"    pm.expect(checkListChanged(pm.response)).to.be.equal(pm.environment.get(\"doneList\"));\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"checkListChanged = function(data){\r",
+									"    let jsonData = data.json();\r",
+									"    return jsonData.idList\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cards/:cardId?idList={{doneList}}&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards",
+								":cardId"
+							],
+							"query": [
+								{
+									"key": "idList",
+									"value": "{{doneList}}"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cardId",
+									"value": "{{newCardId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4.7 Delete card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cards/:cardID?key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards",
+								":cardID"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cardID",
+									"value": "{{newCardId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"cardArchived = function(data){",
+							"    let jsonData = data.json();",
+							"    return jsonData.closed;",
+							"}"
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "TC5 - Memberships",
+			"item": [
+				{
+					"name": "5.1 Add board member",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"getNewMemberId = function(pm){\r",
+									"    let response = pm.response.json();\r",
+									"    let members = response.members;\r",
+									"    for (let i = 0; i < members.length; i++){\r",
+									"        if (members[i].fullName == \"Testerino\"){\r",
+									"            pm.environment.set(\"newMemberId\", members[i].id);\r",
+									"        }\r",
+									"    }\r",
+									"    \r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"getNewMemberId(pm);\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"fullName\": \"Testerino\"\r\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/boards/:id/members?email=iker.cayero@col.vueling.com&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								":id",
+								"members"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "iker.cayero@col.vueling.com"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{idBoard}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.2 Consult board memberships",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/boards/:id/memberships?key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								":id",
+								"memberships"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{idBoard}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.3 Create card to add member",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"getCardId = function(pm){\r",
+									"    let response = pm.response.json();\r",
+									"    pm.environment.set(\"newCardId\", response.id);\r",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"getCardId(pm);\r",
+									"\r",
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cards?idList={{newListId}}&name=TestCard&desc=Test description&pos=top&start=null&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards"
+							],
+							"query": [
+								{
+									"key": "idList",
+									"value": "{{newListId}}"
+								},
+								{
+									"key": "name",
+									"value": "TestCard"
+								},
+								{
+									"key": "desc",
+									"value": "Test description"
+								},
+								{
+									"key": "pos",
+									"value": "top"
+								},
+								{
+									"key": "start",
+									"value": "null"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.4 Add member to a card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cards/:idCard/idMembers?value={{newMemberId}}&key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards",
+								":idCard",
+								"idMembers"
+							],
+							"query": [
+								{
+									"key": "value",
+									"value": "{{newMemberId}}"
+								},
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "idCard",
+									"value": "{{newCardId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.5 Delete member from card",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/cards/:cardId/idMembers/:memberId?key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"cards",
+								":cardId",
+								"idMembers",
+								":memberId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "cardId",
+									"value": "{{newCardId}}"
+								},
+								{
+									"key": "memberId",
+									"value": "{{newMemberId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5.6 Delete board member",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/boards/:boardId/members/:memberId?key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								":boardId",
+								"members",
+								":memberId"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							],
+							"variable": [
+								{
+									"key": "boardId",
+									"value": "{{idBoard}}"
+								},
+								{
+									"key": "memberId",
+									"value": "{{newMemberId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TC6 -  Delete board",
+			"item": [
+				{
+					"name": "6.1 Delete board",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Test to validate status\", validateStatusOk(pm.response));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/boards/{{idBoard}}?key={{apiKey}}&token={{token}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"boards",
+								"{{idBoard}}"
+							],
+							"query": [
+								{
+									"key": "key",
+									"value": "{{apiKey}}"
+								},
+								{
+									"key": "token",
+									"value": "{{token}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "ATTA4078e5b9f4b7af98c448b23947d458a37f160165c86f85e11bfd7e82095788d62002C92C",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"validateStatusOk  = function (data){",
+					"    let code = data.code;",
+					"    if (200 <= code < 300){",
+					"        return true;",
+					"    }",
+					"    return false;",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
